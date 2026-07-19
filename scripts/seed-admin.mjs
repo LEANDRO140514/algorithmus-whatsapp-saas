@@ -39,8 +39,8 @@ function envFile() {
   if (!existsSync(ENV_PATH)) return {};
   const out = {};
   for (const line of readFileSync(ENV_PATH, "utf8").split("\n")) {
-    const m = /^([A-Z0-9_]+)=(.*)$/.exec(line);
-    if (m) out[m[1]] = m[2].replace(/\r$/, "");
+    const m = /^([A-Z0-9_]+)=(.*?)\r?$/.exec(line);
+    if (m) out[m[1]] = m[2];
   }
   return out;
 }
