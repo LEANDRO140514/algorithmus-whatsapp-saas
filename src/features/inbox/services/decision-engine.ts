@@ -5,7 +5,7 @@ import { createClient as createSbClient } from "@supabase/supabase-js";
 import {
   aiShouldRespond,
   canTransition,
-  detectsHandoffTrigger,
+  handoffTriggerReason,
   type ConversationState,
 } from "./state-machine";
 import { checkRateLimits } from "./cost-tracker";
@@ -66,7 +66,8 @@ export async function decide(opts: {
   }
 
   // 3. Detect handoff trigger in message text
-  if (detectsHandoffTrigger(mergedText)) {
+  const triggerReason = handoffTriggerReason(mergedText);
+  if (triggerReason) {
     // This used to UPDATE the row inline, which meant the most common handoff
     // path — the contact asking for a human — skipped applyTransition() and
     // therefore every side effect hanging off it. Route it through the same
@@ -84,7 +85,10 @@ export async function decide(opts: {
       }
     }
 
-    return { decision: "handoff", reason: "handoff_trigger" };
+    return {
+      decision: "handoff",
+      reason: `handoff_trigger:${triggerReason}`,
+    };
   }
 
   // 4. Rate limit check
