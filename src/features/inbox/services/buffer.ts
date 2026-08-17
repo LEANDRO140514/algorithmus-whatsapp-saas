@@ -26,6 +26,7 @@ import {
 } from "./conversation-history";
 import { getSetterConfig, evaluateLead } from "./setter";
 import { syncContactToHL, createHLOpportunity } from "./highlevel-client";
+import { maybeRunEvaShadowTurn } from "@/features/agents/services/eva-shadow";
 
 const DEFAULT_SILENCE_MS = 30_000; // 30 seconds silence window
 const MAX_BATCH_RETRIES = 3;
@@ -397,6 +398,24 @@ export async function processNextBatch(): Promise<ProcessBatchResult> {
         "[buffer] SEC-06 cost cut — aborting AI for workspace",
         batch.workspace_id,
       );
+      await markBatchProcessed(batch.id, mergedText, supabase);
+      return { processed: true, conversationId: batch.conversation_id };
+    }
+
+    // Eva SHADOW v1: contract runtime only. No local LLM, no dispatch, no GHL.
+    const evaShadow = await maybeRunEvaShadowTurn({
+      workspaceId: batch.workspace_id,
+      conversationId: batch.conversation_id,
+      contactId: conversation.contact_id as string,
+      mergedText,
+      mergedCreatedAt: new Date().toISOString(),
+      history,
+      kbResults,
+      kbLinks,
+      agent: activeAgent,
+    });
+
+    if (evaShadow.handled) {
       await markBatchProcessed(batch.id, mergedText, supabase);
       return { processed: true, conversationId: batch.conversation_id };
     }

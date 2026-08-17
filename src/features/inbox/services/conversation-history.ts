@@ -25,6 +25,7 @@ interface HistoryRow {
 export interface ConversationTurn {
   role: "user" | "assistant";
   content: string;
+  created_at: string;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -72,7 +73,7 @@ export async function getConversationHistory(
       const role: "user" | "assistant" =
         row.direction === "in" ? "user" : "assistant";
       const content = row.body || placeholderForType(row.type);
-      return { role, content };
+      return { role, content, created_at: row.created_at };
     });
 
   // Rows came back newest→oldest; reverse to chronological order.
