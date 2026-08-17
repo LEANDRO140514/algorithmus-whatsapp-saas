@@ -24,7 +24,7 @@ const handoffPrepareSchema = z
       "ambiguous",
       "unknown",
     ]),
-    intent_key: z.string().min(1),
+    intent_key: z.string().min(1).nullable(),
   })
   .strict();
 
@@ -34,7 +34,7 @@ const calendarPrepareBookingSchema = z
     preferred_time_window: z.string().nullable(),
     reason: z.string().nullable(),
     note: z.string().nullable(),
-    intent_key: z.string().min(1),
+    intent_key: z.string().min(1).nullable(),
   })
   .strict();
 
@@ -42,7 +42,7 @@ const followupPrepareSchema = z
   .object({
     reason: z.string().nullable(),
     note: z.string().nullable(),
-    intent_key: z.string().min(1),
+    intent_key: z.string().min(1).nullable(),
   })
   .strict();
 
@@ -51,7 +51,7 @@ const qualificationRecordSchema = z
     career_key: careerKeySchema,
     modality_key: z.enum(["presencial", "en_linea"]),
     confidence: z.number().min(0).max(1).nullable(),
-    intent_key: z.string().min(1),
+    intent_key: z.string().min(1).nullable(),
     intent_status: z.enum(["known", "ambiguous", "unknown"]),
   })
   .strict();

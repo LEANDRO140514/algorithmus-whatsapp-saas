@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { EvaContractV1OutputSchema } from "../src/features/agents/contracts/eva-contract-v1.ts";
 import { planEvaActions } from "../src/features/agents/services/action-planner.ts";
+import { validateControlPlaneAction } from "../src/features/agents/services/action-catalog.ts";
 
 test("valid output with intent.key null can be planned and keeps intent_key null", () => {
   const parsed = EvaContractV1OutputSchema.safeParse({
@@ -47,4 +48,11 @@ test("valid output with intent.key null can be planned and keeps intent_key null
   assert.equal(planned.length, 1);
   assert.equal(planned[0]?.actionType, "followup.prepare");
   assert.equal(planned[0]?.payload.intent_key, null);
+
+  const validated = validateControlPlaneAction(
+    planned[0].actionType,
+    planned[0].payload,
+  );
+  assert.equal(validated.actionType, "followup.prepare");
+  assert.equal(validated.payload.intent_key, null);
 });
