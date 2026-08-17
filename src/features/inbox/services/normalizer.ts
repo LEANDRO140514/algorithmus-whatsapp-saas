@@ -1,6 +1,7 @@
 import { createClient as createSbClient } from "@supabase/supabase-js";
 import type { NormalizedInbound } from "./ycloud-webhook-handler";
 import type { ContactRow, ConversationRow, MessageRow } from "../types/index";
+import { ensureLeadInCRM } from "./crm-sync-service";
 
 function svc() {
   return createSbClient(
@@ -94,6 +95,11 @@ export async function processInbound(
   }
 
   const contact = contactData as ContactRow;
+
+  await ensureLeadInCRM({
+    workspaceId,
+    contactId: contact.id,
+  });
 
   // 2. Upsert conversation — reset 24h window on every inbound
   const windowExpiresAt = new Date(

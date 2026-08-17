@@ -27,6 +27,7 @@ import {
 import { getSetterConfig, evaluateLead } from "./setter";
 import { syncContactToHL, createHLOpportunity } from "./highlevel-client";
 import { maybeRunEvaShadowTurn } from "@/features/agents/services/eva-shadow";
+import { ensureLeadInCRM } from "./crm-sync-service";
 
 const DEFAULT_SILENCE_MS = 30_000; // 30 seconds silence window
 const MAX_BATCH_RETRIES = 3;
@@ -283,6 +284,11 @@ export async function processNextBatch(): Promise<ProcessBatchResult> {
     if (convError || !conversation) {
       throw new Error(`Conversation not found: ${convError?.message}`);
     }
+
+    await ensureLeadInCRM({
+      workspaceId: batch.workspace_id,
+      contactId: conversation.contact_id as string,
+    });
 
     // ── 5. Decision engine: state check + handoff trigger + rate limits ──────
     const decisionResult = await decide({
