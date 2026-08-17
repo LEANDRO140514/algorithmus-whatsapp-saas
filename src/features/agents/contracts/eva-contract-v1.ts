@@ -55,10 +55,10 @@ export const EvaQualificationSchema = z
       });
     }
 
-    if (value.status === "partial" && !hasCareer && !hasModality) {
+    if (value.status === "partial" && hasCareer === hasModality) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "partial qualification requires at least one canonical key",
+        message: "partial qualification requires exactly one canonical key",
       });
     }
   });

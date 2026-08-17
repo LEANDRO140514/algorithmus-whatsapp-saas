@@ -191,3 +191,57 @@ test("empty proposed_actions is rejected", () => {
   );
   assert.equal(parsed.success, false);
 });
+
+function qualificationOutput(qualification: Record<string, unknown>) {
+  return validOutput({
+    qualification: {
+      confidence: null,
+      evidence: [],
+      ...qualification,
+    },
+  });
+}
+
+test("partial with career_key only is accepted", () => {
+  const parsed = EvaContractV1OutputSchema.safeParse(
+    qualificationOutput({
+      career_key: "derecho",
+      modality_key: null,
+      status: "partial",
+    }),
+  );
+  assert.equal(parsed.success, true);
+});
+
+test("partial with modality_key only is accepted", () => {
+  const parsed = EvaContractV1OutputSchema.safeParse(
+    qualificationOutput({
+      career_key: null,
+      modality_key: "presencial",
+      status: "partial",
+    }),
+  );
+  assert.equal(parsed.success, true);
+});
+
+test("partial with both keys null is rejected", () => {
+  const parsed = EvaContractV1OutputSchema.safeParse(
+    qualificationOutput({
+      career_key: null,
+      modality_key: null,
+      status: "partial",
+    }),
+  );
+  assert.equal(parsed.success, false);
+});
+
+test("partial with both keys present is rejected", () => {
+  const parsed = EvaContractV1OutputSchema.safeParse(
+    qualificationOutput({
+      career_key: "derecho",
+      modality_key: "presencial",
+      status: "partial",
+    }),
+  );
+  assert.equal(parsed.success, false);
+});
